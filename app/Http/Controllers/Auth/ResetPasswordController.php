@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Foundation\Auth\ResetsPasswords;
+use Illuminate\Http\Request;
 
 class ResetPasswordController extends Controller
 {
@@ -35,5 +36,31 @@ class ResetPasswordController extends Controller
     public function __construct()
     {
         $this->middleware('guest');
+    }
+
+    protected function rules()
+    {
+        return [
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:6',
+            'captcha' => ['required', 'captcha'],
+        ];
+    }
+
+    protected function validationErrorMessages()
+    {
+        return [
+            'captcha.required' => '验证码不能为空',
+            'captcha.captcha' => '请输入正确的验证码',
+        ];
+    }
+
+    protected function sendResetResponse(Request $request, $response)
+    {
+        session()->flash('success', '密码更新成功,您已成功登录! ');
+
+        return redirect($this->redirectPath())
+                             ->with('status', trans($response));
     }
 }
